@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,41 +9,29 @@ namespace Byoc.Infrastructure.Services
 {
     public class NswWeatherService : IWeatherService
     {
-        private readonly IForecastSummaryProvider _forecastSummary;
-        private readonly IRandomProvider _random;
-        private readonly IDateTimeProvider _dateTime;
+        private readonly IWeatherForecastApiService _weatherForecastApi;
 
-        public NswWeatherService(IForecastSummaryProvider forecastSummary, IRandomProvider random, IDateTimeProvider dateTime)
+        public NswWeatherService(IWeatherForecastApiService weatherForecastApi)
         {
-            _forecastSummary = forecastSummary ?? throw new ArgumentNullException(nameof(forecastSummary));
-            _random = random ?? throw new ArgumentNullException(nameof(random));
-            _dateTime = dateTime ?? throw new ArgumentNullException(nameof(dateTime));
+            _weatherForecastApi = weatherForecastApi;
         }
 
         public async Task<IEnumerable<WeatherForecast>> GetForecastForNextFiveDaysAsync()
         {
-            WeatherForecast[] result = Enumerable.Range(1, 5)
-                                                 .Select(index => new WeatherForecast
-                                                  {
-                                                      Date = _dateTime.Now().AddDays(index),
-                                                      TemperatureC = _random.NextInt(-20, 55),
-                                                      Summary = _forecastSummary.Get()
-                                                  })
-                                                 .ToArray();
+            IEnumerable<int> daysList = Enumerable.Range(1, 5);
 
-            return await Task.FromResult(result);
+            var result = new List<WeatherForecast>();
+            foreach (int i in daysList)
+            {
+                result.Add(await _weatherForecastApi.GetAsync(i));
+            }
+
+            return result;
         }
 
         public async Task<WeatherForecast> GetForecastForAsync(int day)
         {
-            var result = new WeatherForecast
-            {
-                Date = _dateTime.Now().AddDays(day),
-                TemperatureC = _random.NextInt(-20, 55),
-                Summary = _forecastSummary.Get()
-            };
-
-            return await Task.FromResult(result);
+            return await _weatherForecastApi.GetAsync(day);
         }
     }
 }

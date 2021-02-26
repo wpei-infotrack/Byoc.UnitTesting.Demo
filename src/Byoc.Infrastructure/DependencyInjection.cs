@@ -1,4 +1,5 @@
 ﻿using Byoc.Application.Interfaces;
+using Byoc.Infrastructure.Apis;
 using Byoc.Infrastructure.Repositories;
 using Byoc.Infrastructure.Services;
 
@@ -14,6 +15,7 @@ namespace Byoc.Infrastructure
             services.AddSingleton<IForecastSummaryProvider, ForecastSummaryProvider>();
             services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
             services.AddSingleton<IStringRepository, ForecastSummaryRepository>();
+            services.AddSingleton<IWeatherForecastApiService, WeatherForecastApiService>();
             services.AddTransient<IWeatherService, NswWeatherService>();
         }
     }
